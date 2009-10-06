@@ -1,0 +1,400 @@
+#JSGF V1.0;
+
+grammar video;
+
+
+/**
+  *Domain independent skeleton (english is a context free language!)
+  */
+
+/**
+  *top level
+  */
+public <utterance> = <single> | ( [<initial>] <utt> [<final>] );
+
+/**
+  *simple moves which are not combined with others
+  */
+<single> = <greet> | <quit> | <reqrep> | <accept> | <yes> | <no> ;
+
+/**
+  *moves that can be performed before questions/answers/requests
+  */
+<initial> = <greet> | <accept> | <yes> | <no> ;
+
+/**
+  *moves that can be performed after questions/answers/requests
+  */
+<final> = <please> ;
+
+/**
+  *combinations of questions/answers/requests.
+  *a lot to be said about this
+  */
+<utt> = ( [<q_initial>] <q_opt_as> ) |
+       ( [<neg>] <as> [(<repair> <utt>)] ) |
+       ( [( <req_initial> | <neg> )] <req_opt_as> ([<conj>] <req_opt_as> )* ) |
+       ( [( <req_initial>, <neg> )]   <req_opt_as>  [(<repair> <utt>)] ) ;
+
+<greet> = hi | hello ;
+<quit> = quit | bye | goodbye;
+<reqrep> = (repeat [that] [please]) | sorry | pardon;
+<accept> = ok | sure;
+<repair> = no | wait ;
+<yes> = yes | sure | (you bet) ;
+<no> = no;
+<neg> = not;
+<conj> = and;
+<please> = please | (thank you);
+<q_initial> = ( i wonder) | (i would like to know) | (tell me);
+<req_initial> = ( i would like to) | (i want to) | (i wanna);
+
+/**
+  *domain dependents, implementations of as, q_opt_as and req_opt_as
+  */
+<as> = <as_add_rec_job>;
+/**
+  *as_top (no as)
+  *as_x_channels (no as)
+  *as_x_usage (no as)
+  *as_delete_rec_job (no as)
+  *as_get_info_about_rec_jobs (no as)
+  *as_x_rec_jobs (no as)
+  *as_x_no_of_rec_jobs (no as).
+  */
+
+<q_opt_as> = <q_x_channels> | <q_x_usage> |
+	     <q_x_rec_jobs> | <q_x_no_of_rec_jobs>;
+
+<req_opt_as> = <req_top> |
+              ( <req_add_rec_job> [<as_add_rec_job>] ) |
+	      <req_manage_rec_jobs> |
+	      <req_delete_rec_job> |
+	      <req_get_info_about_rec_jobs> ;
+
+/**
+  *as_add_rec_job HUGE, placed last in file
+  */
+
+<q_x_channels> =  ( (what|which) are the available channels) |
+		  ( (what|which) channels are there )|
+		  ( (what|which)  channels );
+
+<q_x_usage> = help;
+
+<q_x_rec_jobs> = ( [(what|which are my)] recordings) |
+		  (my recordings);
+
+<q_x_no_of_rec_jobs> = (how many recordings) [([do] i have)] ;
+
+<req_top> = [(go to)] ((main menu)| top |  (top level) | restart);
+
+<req_add_rec_job> = add [a] ( recording | program );
+
+<req_manage_rec_jobs> = [go to] recordings ;
+
+<req_delete_rec_job> = delete [my] [( recording|recordings)] ;
+
+<req_get_info_about_rec_jobs> = [get] ((information [about [my]] recordings)|
+				(recording information));
+
+<time_sa> = <time>;
+<weekday_sa> = <proper_weekday>;
+<channel_sa> = <channel>;
+
+<start_time_prop> = from|starting <time>;
+<stop_time_prop> = to|until|ending <time>;
+<channel_prop> = on <channel>;
+<weekday_prop> = (on <proper_weekday>) | <deictic_weekday> ;
+<time> = (<hour> [(o clock)]) |
+         (<hour> <minutes>) |
+	 ( (( <minutes> [minutes]) | ([a] quarter)) ( past | to ) <one2twelve>) |
+	 ( [half past] <one2twelve>);
+
+<hour> = midnight | <one2nine> | <tens> | 
+	 (twenty one) | (twenty two) | (twenty three);
+
+<minutes> = <one2nine> | <tens> | <twenties> | <thirties> | 
+	  <fourties> | <fifties>;
+
+<one2nine> = one |two | three | four | five | six | seven | 
+	   eight | nine;
+
+<one2twelve> = <one2nine> | ten | eleven | twelve;
+
+<tens> = ten |eleven | twelve | thirteen | fourteen | fifteen |
+         sixteen | seventeen | eighteen | nineteen;
+
+<twenties> = twenty <one2nine>;
+<thirties> = thirty <one2nine>;
+<fourties> = forty <one2nine>;
+<fifties> = fifty <one2nine>;
+<proper_weekday> = monday | tuesday | wednesday | thursday | 
+		   friday | saturday | sunday;
+
+<deictic_weekday> = today | tomorrow;
+
+<channel> = (s v t one)|
+	    (t v one)|
+	    (channel ne)|
+	    (s v t two)|
+	    (t v two)|
+	    (channel two)|
+	    (t v three)|
+	    (channel three)|
+	    (t v four)| 
+	    (channel four)|
+	    (t v e)|
+	    (rai uno)|
+	    (c n n)|
+	    (b b c world)|
+	    (d r one)|
+	    (d r two)|
+	    (n r k one)|
+	    (n r k two);
+
+/**
+  *short  answers not allowed after propositions
+  */
+<as_add_rec_job> = <time_sa> |
+                  <weekday_sa> |
+		  <channel_sa> |
+		  <start_time_prop> |
+		  <stop_time_prop> |
+		  <channel_prop> |
+		  <weekday_prop> |
+		    ( <time_sa> <weekday_sa>) |
+		  ( <time_sa> <channel_sa>) |
+                  ( <time_sa>  <start_time_prop> ) |
+		  ( <time_sa>  <stop_time_prop> ) |
+		  ( <time_sa>  <channel_prop> ) |
+		  ( <time_sa> <weekday_prop> ) |
+
+		  ( <weekday_sa>  <time_sa> ) |
+		  ( <weekday_sa>  <channel_sa> )|
+		  ( <weekday_sa> <start_time_prop> ) |
+		  ( <weekday_sa> <stop_time_prop> ) |
+		  ( <weekday_sa>  channel ) |
+
+		  ( <channel_sa>  <time_sa> ) |
+		  ( <channel_sa> <weekday_sa>) |
+		  ( <channel_sa> <start_time_prop> ) |
+		  ( <channel_sa> <stop_time_prop> ) |
+		  ( <channel_sa> <weekday_prop> ) |
+		  
+		  ( <start_time_prop>  <stop_time_prop> ) |
+		  ( <start_time_prop>  <channel_prop> ) |
+		  ( <start_time_prop> <weekday_prop> ) |
+
+		  ( <stop_time_prop>  <start_time_prop> ) |
+		  ( <stop_time_prop>  <channel_prop> ) |
+		  ( <stop_time_prop>  <weekday_prop> ) |
+
+		  ( <channel_prop>  <start_time_prop> ) |
+		  ( <channel_prop>  <stop_time_prop> ) |
+		  ( <channel_prop>  <weekday_prop> ) |
+
+		  ( <weekday_prop>  <start_time_prop> ) |
+		  ( <weekday_prop>  <stop_time_prop> ) |
+		  ( <weekday_prop> <channel_prop> ) |
+
+
+
+		  ( <time_sa> <weekday_sa> <channel_sa>) |
+		  ( <time_sa> <weekday_sa> <start_time_prop>) |
+		  ( <time_sa> <weekday_sa> <stop_time_prop>) |
+		  ( <time_sa> <weekday_sa> <channel_prop>) |
+		  
+		  ( <time_sa> <channel_sa> <weekday_sa>) |
+		  ( <time_sa> <channel_sa> <start_time_prop>) |
+		  ( <time_sa> <channel_sa> <stop_time_prop>) |
+		  ( <time_sa> <channel_sa> <weekday_prop> ) |
+		  
+                  ( <time_sa>  <start_time_prop> <weekday_prop> ) |
+                  ( <time_sa>  <start_time_prop> <channel_prop> ) |
+		  
+		  ( <time_sa>  <stop_time_prop> <weekday_prop> ) |
+		  ( <time_sa>  <stop_time_prop> <channel_prop> ) |
+		  
+		  ( <time_sa>  <channel_prop>  <weekday_prop>) |
+		  ( <time_sa>  <channel_prop> <start_time_prop> ) |
+		  ( <time_sa>  <channel_prop> <stop_time_prop> ) |
+
+		  ( <time_sa> <weekday_prop>  <channel_prop> ) |
+		  ( <time_sa> <weekday_prop> <start_time_prop> ) |
+		  ( <time_sa> <weekday_prop> <stop_time_prop> ) |
+
+		  ( <weekday_sa>  <time_sa>  <channel_sa> ) |
+		  ( <weekday_sa>  <time_sa>  <channel_prop> ) |
+		  ( <weekday_sa>  <time_sa>  <start_time_prop> ) |
+		  ( <weekday_sa>  <time_sa>  <stop_time_prop>  ) |
+
+		  ( <weekday_sa>  <channel_sa>  <time_sa> )|
+		  ( <weekday_sa>  <channel_sa>  <start_time_prop> )|
+		  ( <weekday_sa>  <channel_sa>  <stop_time_prop> )|
+
+		  ( <weekday_sa> <start_time_prop>  <stop_time_prop>  ) |
+		  ( <weekday_sa> <start_time_prop>  <channel_prop>  ) |
+		  
+		  ( <weekday_sa> <stop_time_prop> <start_time_prop> ) |
+		  ( <weekday_sa> <stop_time_prop>  <channel_prop> ) |
+  
+		  ( <weekday_sa>  <channel_prop> <start_time_prop> ) |
+		  ( <weekday_sa>  <channel_prop> <stop_time_prop> ) |
+
+		  ( <channel_sa>  <time_sa>  <weekday_sa> ) |
+		  ( <channel_sa>  <time_sa>  <start_time_prop> ) |
+		  ( <channel_sa>  <time_sa>  <stop_time_prop> ) |
+		  ( <channel_sa>  <time_sa>  <weekday_prop>) |
+
+		  ( <channel_sa> <weekday_sa>  <time_sa>) |
+		  ( <channel_sa> <weekday_sa>  <start_time_prop>) |
+		  ( <channel_sa> <weekday_sa>  <stop_time_prop>) |
+		  
+		  ( <channel_sa> <start_time_prop>  <stop_time_prop> ) |
+		  ( <channel_sa> <start_time_prop>  <weekday_prop> ) |
+
+		  ( <channel_sa> <stop_time_prop> <start_time_prop> ) |
+		  ( <channel_sa> <stop_time_prop>  <weekday_prop> ) |
+		  
+		  ( <channel_sa> <weekday_prop> <start_time_prop> ) |
+		  ( <channel_sa> <weekday_prop>  <stop_time_prop>) |
+		  
+		  ( <start_time_prop>  <stop_time_prop> <weekday_prop>) |
+		  ( <start_time_prop>  <stop_time_prop> <channel_prop>) |
+		  
+		  ( <start_time_prop> <channel_prop> <stop_time_prop> ) |
+		  ( <start_time_prop> <channel_prop> <weekday_prop> ) |
+		  
+		  ( <start_time_prop> <weekday_prop> <stop_time_prop> ) |
+		  ( <start_time_prop> <weekday_prop> <channel_prop> ) |
+
+		  ( <stop_time_prop> <start_time_prop> <weekday_prop> ) |
+		  ( <stop_time_prop> <start_time_prop> <channel_prop> ) |
+		  
+		  ( <stop_time_prop> <channel_prop> <start_time_prop> ) |
+		  ( <stop_time_prop> <channel_prop> <weekday_prop> ) |
+		  
+		  ( <stop_time_prop>  <weekday_prop> <start_time_prop> ) |
+		  ( <stop_time_prop>  <weekday_prop> <channel_prop> ) |
+
+		  ( <channel_prop> <start_time_prop> <stop_time_prop>  ) |
+		  ( <channel_prop> <start_time_prop> <weekday_prop> ) |
+		  
+		  ( <channel_prop>  <stop_time_prop> <start_time_prop> ) |
+		  ( <channel_prop>  <stop_time_prop> <weekday_prop> ) |
+		  
+		  ( <channel_prop>  <weekday_prop> <start_time_prop> ) |
+		  ( <channel_prop>  <weekday_prop> <stop_time_prop> ) |
+
+		  ( <weekday_prop>  <start_time_prop> <stop_time_prop> ) |
+		  ( <weekday_prop>  <start_time_prop> <channel_prop>  ) |
+		  
+		  ( <weekday_prop>  <stop_time_prop>  <start_time_prop> ) |
+		  ( <weekday_prop>  <stop_time_prop> <channel_prop> ) |
+		  
+		  ( <weekday_prop> <channel_prop>  <start_time_prop> ) |
+		  ( <weekday_prop> <channel_prop> <stop_time_prop> ) |
+
+
+		  
+		  ( <time_sa> <weekday_sa> <start_time_prop> <channel_prop>) |
+		  ( <time_sa> <weekday_sa> <stop_time_prop> <channel_prop>) |
+		  ( <time_sa> <weekday_sa> <channel_prop> <start_time_prop>) |
+		  ( <time_sa> <weekday_sa> <channel_prop> <stop_time_prop>) |
+		  
+		  ( <time_sa> <channel_sa> <start_time_prop> <weekday_prop>) |
+		  
+		  ( <time_sa> <channel_sa> <stop_time_prop> <weekday_prop>) |
+		  ( <time_sa> <channel_sa> <weekday_prop> <start_time_prop> ) |
+		  ( <time_sa> <channel_sa> <weekday_prop> <stop_time_prop> ) |
+		  
+                  ( <time_sa>  <start_time_prop> <weekday_prop> <channel_prop> ) |
+                  ( <time_sa>  <start_time_prop> <channel_prop> <weekday_prop> ) |
+		  
+		  ( <time_sa>  <stop_time_prop> <weekday_prop> <channel_prop> ) |
+		  ( <time_sa>  <stop_time_prop> <channel_prop> <weekday_prop> ) |
+		  
+		  ( <time_sa>  <channel_prop>  <weekday_prop> <start_time_prop>) |
+		  ( <time_sa>  <channel_prop>  <weekday_prop> <stop_time_prop>) |
+		  
+		  ( <time_sa>  <channel_prop> <start_time_prop> <weekday_prop> ) |
+		  ( <time_sa>  <channel_prop> <stop_time_prop> <weekday_prop> ) |
+
+		  ( <time_sa> <weekday_prop>  <channel_prop> <start_time_prop> ) |
+		  ( <time_sa> <weekday_prop>  <channel_prop> <stop_time_prop> ) |
+		  ( <time_sa> <weekday_prop> <start_time_prop>  <channel_prop> ) |
+		  ( <time_sa> <weekday_prop> <stop_time_prop>  <channel_prop> ) |
+
+		
+		  ( <weekday_sa>  <time_sa>  <channel_prop>  <start_time_prop> ) |
+		  ( <weekday_sa>  <time_sa>  <channel_prop>  <stop_time_prop> ) |
+		  ( <weekday_sa>  <time_sa>  <start_time_prop>  <channel_prop> ) |
+		  ( <weekday_sa>  <time_sa>  <stop_time_prop>  <channel_prop> ) |
+		  
+		  ( <weekday_sa>  <channel_sa>  <time_sa>  <start_time_prop> )|
+		  ( <weekday_sa>  <channel_sa>  <time_sa>  <stop_time_prop> )|
+		  ( <weekday_sa>  <channel_sa>  <start_time_prop>  <stop_time_prop> )|
+		  ( <weekday_sa>  <channel_sa>  <stop_time_prop>  <start_time_prop> )|
+
+		  ( <weekday_sa> <start_time_prop>  <stop_time_prop>  <channel_prop> )|
+		  ( <weekday_sa> <start_time_prop>  <channel_prop>  <stop_time_prop> )|
+		  
+		  ( <weekday_sa> <stop_time_prop> <start_time_prop>  <channel_prop> ) |
+		  ( <weekday_sa> <stop_time_prop>  <channel_prop> <start_time_prop> ) |
+  
+		  ( <weekday_sa>  <channel_prop> <start_time_prop> <stop_time_prop> ) |
+		  ( <weekday_sa>  <channel_prop> <stop_time_prop> <start_time_prop> ) |
+
+		  ( <channel_sa>  <time_sa>  <start_time_prop>  <weekday_prop> ) |
+		  ( <channel_sa>  <time_sa>  <stop_time_prop>  <weekday_prop> ) |
+		  ( <channel_sa>  <time_sa>  <weekday_prop>  <start_time_prop>) |
+		  ( <channel_sa>  <time_sa>  <weekday_prop>  <stop_time_prop>) |
+
+		  ( <channel_sa> <weekday_sa>  <start_time_prop>  <stop_time_prop>) |
+		  ( <channel_sa> <weekday_sa>  <stop_time_prop>  <start_time_prop>) |
+		  
+		  ( <channel_sa> <start_time_prop>  <stop_time_prop>  <weekday_prop> ) |
+		  ( <channel_sa> <start_time_prop>  <weekday_prop>  <stop_time_prop> ) |
+
+		  ( <channel_sa> <stop_time_prop> <start_time_prop>  <weekday_prop> ) |
+		  ( <channel_sa> <stop_time_prop>  <weekday_prop> <start_time_prop> ) |
+		 
+		  ( <channel_sa> <weekday_prop> <start_time_prop>  <stop_time_prop> ) |
+		  ( <channel_sa> <weekday_prop>  <stop_time_prop> <start_time_prop>) |
+		  
+		  ( <start_time_prop>  <stop_time_prop> <weekday_prop> <channel_prop>) |
+		  ( <start_time_prop>  <stop_time_prop> <channel_prop> <weekday_prop>) |
+		  
+		  ( <start_time_prop> <channel_prop> <stop_time_prop> <weekday_prop> ) |
+		  ( <start_time_prop> <channel_prop> <weekday_prop> <stop_time_prop> ) |
+		  
+		  ( <start_time_prop> <weekday_prop> <stop_time_prop> <channel_prop> ) |
+		  ( <start_time_prop> <weekday_prop> <channel_prop> <stop_time_prop> ) |
+
+		  ( <stop_time_prop> <start_time_prop> <weekday_prop> <channel_prop> ) |
+		  ( <stop_time_prop> <start_time_prop> <channel_prop> <weekday_prop> ) |
+		  
+		  ( <stop_time_prop> <channel_prop> <start_time_prop> <weekday_prop> ) |
+		  ( <stop_time_prop> <channel_prop> <weekday_prop> <start_time_prop> ) |
+		  
+		  ( <stop_time_prop>  <weekday_prop> <start_time_prop> <channel_prop> ) |
+		  ( <stop_time_prop>  <weekday_prop> <channel_prop> <start_time_prop> ) |
+
+		  ( <channel_prop> <start_time_prop> <stop_time_prop> <weekday_prop>  ) |
+		  ( <channel_prop> <start_time_prop> <weekday_prop> <stop_time_prop> )
+		  
+		  ( <channel_prop>  <stop_time_prop> <start_time_prop> <weekday_prop> ) |
+		  ( <channel_prop>  <stop_time_prop> <weekday_prop> <start_time_prop> ) |
+		  
+		  ( <channel_prop>  <weekday_prop> <start_time_prop> <stop_time_prop> ) |
+		  ( <channel_prop>  <weekday_prop> <stop_time_prop> <start_time_prop> ) |
+
+		  ( <weekday_prop>  <start_time_prop> <stop_time_prop> <channel_prop> ) |
+		  ( <weekday_prop>  <start_time_prop> <channel_prop> <stop_time_prop>  ) |
+		  
+		  ( <weekday_prop>  <stop_time_prop>  <start_time_prop> <channel_prop> ) |
+		  ( <weekday_prop>  <stop_time_prop> <channel_prop>  <start_time_prop> ) |
+		  
+		  ( <weekday_prop> <channel_prop>  <start_time_prop> <stop_time_prop> ) |
+		  ( <weekday_prop> <channel_prop> <stop_time_prop>  <start_time_prop> ) ;

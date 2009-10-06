@@ -1,0 +1,5 @@
+#JSGF V1.0;
+
+grammar keywords;
+
+public <keywords> = (visualization | yes | no | maybe | picture | image | data | risk | high | medium | low | interesting | processing | vowels | dangerous | serious | okay | fine | allowed | realtime | time | testing | analyze | analysis | analyst | expert | tool | help | you | me | other | criteria | dog | cat | fish | hamster | wolf | lance | told | so | program) * ;
