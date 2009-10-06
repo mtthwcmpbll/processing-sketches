@@ -9,7 +9,7 @@ void setup() {
   textFont(font, 48);
   
   //initialize the speech recognition
-  voce.SpeechInterface.init(dataPath("voce-0.9.1/lib"), false, true, dataPath("grammars"), "");
+  voce.SpeechInterface.init(dataPath("voce-0.9.1/lib"), false, true, dataPath("grammars"), "keywords");
 }
 
 void draw() {
@@ -19,10 +19,6 @@ void draw() {
     String spoken = voce.SpeechInterface.popRecognizedString();
     Word recognizedWord = new Word(spoken);
     words.add(recognizedWord);
-    
-    if (recognizedWord.getRisk() == Risk.HIGH) {
-      background(255, 255, 255);
-    }
   }
   
   for (int i = 0; i < words.size(); i++) {
@@ -34,12 +30,6 @@ void draw() {
   }
 }
 
-
-static class Risk {
-  public static int LOW = 0;
-  public static int MEDIUM = 1;
-  public static int HIGH = 2;
-}
 
 class Word {
   String value;
@@ -53,21 +43,22 @@ class Word {
   
   void update() {
     
-    //Color the word based on risk
-    switch(getRisk()) {
-      case 0:
+    //Do any modification (stroke, fill, other drawing, etc) based on features here...
+    
+    //Color the word based on interestingness
+    switch(getLength()) {
+      case 0:  //short words...
         //fill with green
         fill(0, 255, 0);
         break;
-      case 1:
+      case 1:  //medium words...
         //fill with yellow
         fill(255, 255, 0);
         break;
-      case 2:
+      case 2:  //long words...
         fill(255, 0, 0);
-        x = 100;
         break;
-      default:
+      default:  //catch anything else, color white (but we shouldn't ever get this)
         fill(0, 0, 0);
     }
     
@@ -76,15 +67,23 @@ class Word {
     y += 2;
   }
   
+  /**
+   * Used to check if a word is visible so it can be removed if desired
+   */
   boolean isOffscreen() {
     return y > (height + 48);
   }
   
-  //What makes a word interesting?
-  int getRisk() {    
-    if (value.contains("dangerous")) {
-      return Risk.HIGH;
+  /**
+   * an example feature 'length' - add more features methods and use them in update()
+   */
+  int getLength() {
+    if (value.length() > 8) {
+      return 2;
+    } else if(value.length() > 4) {
+      return 1;
+    } else {
+      return 0;
     }
-    return Risk.LOW;
   }
 }
