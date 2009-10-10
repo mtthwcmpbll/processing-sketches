@@ -16,9 +16,15 @@ void draw() {
   background(128, 128, 128);
   
   if (voce.SpeechInterface.getRecognizerQueueSize() > 0) {
+    //add the word we recognized...
     String spoken = voce.SpeechInterface.popRecognizedString();
     Word recognizedWord = new Word(spoken);
     words.add(recognizedWord);
+    
+    //...and ask all words to scroll down the new height
+    for (int i = 0; i < words.size(); i++) {
+      ((Word)words.get(i)).scrollToY(48);
+    }
   }
   
   for (int i = 0; i < words.size(); i++) {
@@ -36,6 +42,8 @@ class Word {
   
   int x = 32;
   int y = 0;
+  
+  int yScroll = 0;
   
   Word(String value) {
     this.value = value;
@@ -64,7 +72,10 @@ class Word {
     
     //print the text and move it down the screen
     text(value, x, y);
-    y += 2;
+    if (yScroll > 0) {
+      y += 2;
+      yScroll -= 2;
+    }
   }
   
   /**
@@ -72,6 +83,10 @@ class Word {
    */
   boolean isOffscreen() {
     return y > (height + 48);
+  }
+  
+  void scrollToY(int y) {
+    yScroll = y;
   }
   
   /**
