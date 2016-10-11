@@ -5,7 +5,7 @@ ArrayList words = new ArrayList();
 void setup() {
   size(800, 600);
   
-  font = loadFont("Arial-Black-48.vlw");
+  font = createFont(PFont.list()[0], 48);
   textFont(font, 48);
   
   //initialize the speech recognition
@@ -41,7 +41,7 @@ class Word {
   String value;
   
   int x = 32;
-  int y = 0;
+  int y = 48;
   
   int yScroll = 0;
   
